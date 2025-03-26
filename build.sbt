@@ -491,7 +491,7 @@ lazy val socket = module("socket",
 
 lazy val tree = module("tree",
   Seq(core),
-  Seq(chess.playJson)
+  Seq(chess.playJson) ++ tests.bundle ++ Seq(munitCheck)
 )
 
 lazy val ui = module("ui",
