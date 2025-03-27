@@ -153,6 +153,7 @@ sealed trait Node:
   def dropFirstChild: Node
   def clock: Option[Clock]
   def forceVariation: Boolean
+  def hidden: Boolean
 
   // implementation dependent
   def idOption: Option[UciCharPair]
@@ -186,6 +187,9 @@ case class Root(
   def moveOption     = None
   def comp           = false
   def forceVariation = false
+
+  // Root nodes can never be hidden.
+  override val hidden: Boolean = false
 
   // def addChild(branch: Branch)     = copy(children = children :+ branch)
   def addChild(child: Branch): Root = copy(children = children.addNode(child))
@@ -320,7 +324,8 @@ case class Branch(
     comp: Boolean = false,
     clock: Option[Clock] = None, // clock state after the move is played, and the increment applied
     crazyData: Option[Crazyhouse.Data],
-    forceVariation: Boolean = false // cannot be mainline
+    forceVariation: Boolean = false, // cannot be mainline
+    hidden: Boolean = false
 ) extends Node:
 
   def idOption   = Some(id)
