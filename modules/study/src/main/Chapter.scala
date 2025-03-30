@@ -26,7 +26,8 @@ case class Chapter(
     relay: Option[Chapter.Relay] = None,
     serverEval: Option[Chapter.ServerEval] = None,
     denorm: Option[Chapter.LastPosDenorm] = None,
-    createdAt: Instant
+    createdAt: Instant,
+    hiddenmoves: Option[Boolean] = None
 ) extends Chapter.Like:
 
   import Chapter.BothClocks
@@ -104,9 +105,10 @@ case class Chapter(
       createdAt = nowInstant
     )
 
-  def isPractice = ~practice
-  def isGamebook = ~gamebook
-  def isConceal  = conceal.isDefined
+  def isPractice    = ~practice
+  def isGamebook    = ~gamebook
+  def isConceal     = conceal.isDefined
+  def isHiddenMoves = ~hiddenmoves
 
   def withoutChildren = copy(root = root.withoutChildren)
 
@@ -182,6 +184,7 @@ object Chapter:
       ownerId: UserId,
       practice: Boolean,
       gamebook: Boolean,
+      hiddenmoves: Boolean,
       conceal: Option[Ply],
       relay: Option[Relay] = None
   ) =
@@ -196,6 +199,7 @@ object Chapter:
       ownerId = ownerId,
       practice = practice.option(true),
       gamebook = gamebook.option(true),
+      hiddenmoves = hiddenmoves.option(true),
       conceal = conceal,
       relay = relay,
       createdAt = nowInstant

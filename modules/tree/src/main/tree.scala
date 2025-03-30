@@ -529,6 +529,7 @@ object Node:
               nodeListJsonWriter.writes(children.nodes)
           )
           .add("forceVariation", forceVariation)
+          .add("hidden", Option.when(hidden)(true))
       catch
         case e: StackOverflowError =>
           e.printStackTrace()

@@ -79,6 +79,7 @@ final private class StudyMaker(
         ownerId = user.id,
         practice = false,
         gamebook = false,
+        hiddenmoves = false,
         conceal = None
       )
     yield Study.WithChapter(study.withChapter(chapter), chapter)

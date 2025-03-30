@@ -8,6 +8,7 @@ import chess.format.pgn.{ Glyph, Glyphs, SanStr }
 import chess.bitboard.Bitboard
 import lila.tree.Node.*
 import lila.tree.Branch
+import play.api.libs.json.*
 
 class RootTest extends FunSuite:
 
@@ -179,4 +180,10 @@ class BranchTest extends FunSuite:
 
     val updated = root.updateMainlineLast(_.setComp)
     assertEquals(updated.children.first.get.children.first.get.comp, true)
+  }
+
+  test("json serialization includes hidden when true") {
+    val branch = makeBranch().copy(hidden = true)
+    val json   = Json.toJson(branch)(Node.defaultNodeJsonWriter)
+    assert(json.as[JsObject].value("hidden") == JsBoolean(true))
   }
