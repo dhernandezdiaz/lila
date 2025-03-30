@@ -4779,6 +4779,8 @@ interface I18n {
     goodMove: string;
     /** Hide next moves */
     hideNextMoves: string;
+    /** Hidden moves */
+    hiddenMoves: string;
     /** Hot */
     hot: string;
     /** Import from %s */

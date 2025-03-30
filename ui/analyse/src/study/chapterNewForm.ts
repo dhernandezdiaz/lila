@@ -22,6 +22,7 @@ export const modeChoices = [
   ['practice', i18n.site.practiceWithComputer],
   ['conceal', i18n.study.hideNextMoves],
   ['gamebook', i18n.study.interactiveLesson],
+  ['hiddenmoves', i18n.study.hiddenMoves],
 ];
 
 export const fieldValue = (e: Event, id: string) =>
@@ -158,10 +159,10 @@ export function view(ctrl: StudyChapterNewForm): VNode {
     },
     vnodes: [
       activeTab !== 'edit' &&
-        h('h2', [
-          i18n.study.newChapter,
-          h('i.help', { attrs: { 'data-icon': licon.InfoCircle }, hook: bind('click', ctrl.startTour) }),
-        ]),
+      h('h2', [
+        i18n.study.newChapter,
+        h('i.help', { attrs: { 'data-icon': licon.InfoCircle }, hook: bind('click', ctrl.startTour) }),
+      ]),
       h(
         'form.form3',
         {
@@ -205,127 +206,127 @@ export function view(ctrl: StudyChapterNewForm): VNode {
             makeTab('pgn', 'PGN', i18n.study.loadAGameFromPgn),
           ]),
           activeTab === 'edit' &&
-            h(
-              'div.board-editor-wrap',
-              {
-                hook: {
-                  insert(vnode) {
-                    xhrJson('/editor.json').then(async data => {
-                      data.el = vnode.elm;
-                      data.fen = ctrl.root.node.fen;
-                      data.embed = true;
-                      data.options = {
-                        inlineCastling: true,
-                        orientation: ctrl.orientation,
-                        onChange: ctrl.editorFen,
-                        coordinates: true,
-                        bindHotkeys: false,
-                      };
-                      ctrl.editor = await site.asset.loadEsm<LichessEditor>('editor', { init: data });
-                      ctrl.editorFen(ctrl.editor.getFen());
-                      ctrl.editor.setRules(lichessRules(currentChapter.setup.variant.key));
-                    });
-                  },
-                  destroy: () => (ctrl.editor = null),
-                },
-              },
-              [spinner()],
-            ),
-          activeTab === 'game' &&
-            h('div.form-group', [
-              h(
-                'label.form-label',
-                { attrs: { for: 'chapter-game' } },
-                i18n.study.loadAGameFromXOrY('lichess.org', 'chessgames.com'),
-              ),
-              h('textarea#chapter-game.form-control', {
-                attrs: { placeholder: i18n.study.urlOfTheGame },
-                hook: onInsert((el: HTMLTextAreaElement) => {
-                  el.addEventListener('change', () => el.reportValidity());
-                  el.addEventListener('input', () => {
-                    const ok = el.value
-                      .trim()
-                      .split('\n')
-                      .every(line =>
-                        line
-                          .trim()
-                          .match(
-                            new RegExp(
-                              `^((.*${location.host}/\\w{8,12}.*)|\\w{8}|\\w{12}|(.*chessgames\\.com/.*[?&]gid=\\d+.*)|)$`,
-                            ),
-                          ),
-                      );
-                    el.setCustomValidity(ok ? '' : 'Invalid game ID(s) or URL(s)');
-                  });
-                }),
-              }),
-            ]),
-          activeTab === 'fen' &&
-            h('div.form-group', [
-              h('input#chapter-fen.form-control', {
-                attrs: {
-                  value: ctrl.root.node.fen,
-                  placeholder: i18n.study.loadAPositionFromFen,
-                  spellcheck: 'false',
-                },
-                hook: onInsert((el: HTMLInputElement) => {
-                  el.addEventListener('change', () => el.reportValidity());
-                  el.addEventListener('input', _ => {
-                    if (parseFen(el.value.trim()).isOk) {
-                      el.setCustomValidity('');
-                      ctrl.root.node.fen = el.value;
-                    } else el.setCustomValidity('Invalid FEN');
-                  });
-                }),
-              }),
-              h(
-                'a.preview-in-editor',
-                {
-                  hook: bind('click', () => ctrl.tab('edit'), ctrl.root.redraw),
-                },
-                [h('i.text', { attrs: dataIcon(licon.Eye) }), i18n.study.editor],
-              ),
-            ]),
-          activeTab === 'pgn' &&
-            h('div.form-group', [
-              h('textarea#chapter-pgn.form-control', {
-                attrs: {
-                  placeholder: i18n.study.pasteYourPgnTextHereUpToNbGames(ctrl.multiPgnMax),
-                },
-              }),
-              h(
-                'button.button.button-empty.import-from__chapter',
-                {
-                  attrs: { type: 'button' },
-                  hook: bind(
-                    'click',
-                    () => {
-                      xhrText(`/study/${study.data.id}/${study.vm.chapterId}.pgn`).then(pgnData =>
-                        $('#chapter-pgn').val(pgnData),
-                      );
-                      return false;
-                    },
-                    undefined,
-                    false,
-                  ),
-                },
-                i18n.study.importFromChapterX(study.currentChapter().name),
-              ),
-              window.FileReader &&
-                h('input#chapter-pgn-file.form-control', {
-                  attrs: { type: 'file', accept: '.pgn' },
-                  hook: bind('change', e => {
-                    const file = (e.target as HTMLInputElement).files![0];
-                    if (!file) return;
-                    const reader = new FileReader();
-                    reader.onload = function () {
-                      (document.getElementById('chapter-pgn') as HTMLTextAreaElement).value =
-                        reader.result as string;
+          h(
+            'div.board-editor-wrap',
+            {
+              hook: {
+                insert(vnode) {
+                  xhrJson('/editor.json').then(async data => {
+                    data.el = vnode.elm;
+                    data.fen = ctrl.root.node.fen;
+                    data.embed = true;
+                    data.options = {
+                      inlineCastling: true,
+                      orientation: ctrl.orientation,
+                      onChange: ctrl.editorFen,
+                      coordinates: true,
+                      bindHotkeys: false,
                     };
-                    reader.readAsText(file);
-                  }),
-                }),
-            ]),
+                    ctrl.editor = await site.asset.loadEsm<LichessEditor>('editor', { init: data });
+                    ctrl.editorFen(ctrl.editor.getFen());
+                    ctrl.editor.setRules(lichessRules(currentChapter.setup.variant.key));
+                  });
+                },
+                destroy: () => (ctrl.editor = null),
+              },
+            },
+            [spinner()],
+          ),
+          activeTab === 'game' &&
+          h('div.form-group', [
+            h(
+              'label.form-label',
+              { attrs: { for: 'chapter-game' } },
+              i18n.study.loadAGameFromXOrY('lichess.org', 'chessgames.com'),
+            ),
+            h('textarea#chapter-game.form-control', {
+              attrs: { placeholder: i18n.study.urlOfTheGame },
+              hook: onInsert((el: HTMLTextAreaElement) => {
+                el.addEventListener('change', () => el.reportValidity());
+                el.addEventListener('input', () => {
+                  const ok = el.value
+                    .trim()
+                    .split('\n')
+                    .every(line =>
+                      line
+                        .trim()
+                        .match(
+                          new RegExp(
+                            `^((.*${location.host}/\\w{8,12}.*)|\\w{8}|\\w{12}|(.*chessgames\\.com/.*[?&]gid=\\d+.*)|)$`,
+                          ),
+                        ),
+                    );
+                  el.setCustomValidity(ok ? '' : 'Invalid game ID(s) or URL(s)');
+                });
+              }),
+            }),
+          ]),
+          activeTab === 'fen' &&
+          h('div.form-group', [
+            h('input#chapter-fen.form-control', {
+              attrs: {
+                value: ctrl.root.node.fen,
+                placeholder: i18n.study.loadAPositionFromFen,
+                spellcheck: 'false',
+              },
+              hook: onInsert((el: HTMLInputElement) => {
+                el.addEventListener('change', () => el.reportValidity());
+                el.addEventListener('input', _ => {
+                  if (parseFen(el.value.trim()).isOk) {
+                    el.setCustomValidity('');
+                    ctrl.root.node.fen = el.value;
+                  } else el.setCustomValidity('Invalid FEN');
+                });
+              }),
+            }),
+            h(
+              'a.preview-in-editor',
+              {
+                hook: bind('click', () => ctrl.tab('edit'), ctrl.root.redraw),
+              },
+              [h('i.text', { attrs: dataIcon(licon.Eye) }), i18n.study.editor],
+            ),
+          ]),
+          activeTab === 'pgn' &&
+          h('div.form-group', [
+            h('textarea#chapter-pgn.form-control', {
+              attrs: {
+                placeholder: i18n.study.pasteYourPgnTextHereUpToNbGames(ctrl.multiPgnMax),
+              },
+            }),
+            h(
+              'button.button.button-empty.import-from__chapter',
+              {
+                attrs: { type: 'button' },
+                hook: bind(
+                  'click',
+                  () => {
+                    xhrText(`/study/${study.data.id}/${study.vm.chapterId}.pgn`).then(pgnData =>
+                      $('#chapter-pgn').val(pgnData),
+                    );
+                    return false;
+                  },
+                  undefined,
+                  false,
+                ),
+              },
+              i18n.study.importFromChapterX(study.currentChapter().name),
+            ),
+            window.FileReader &&
+            h('input#chapter-pgn-file.form-control', {
+              attrs: { type: 'file', accept: '.pgn' },
+              hook: bind('change', e => {
+                const file = (e.target as HTMLInputElement).files![0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = function () {
+                  (document.getElementById('chapter-pgn') as HTMLTextAreaElement).value =
+                    reader.result as string;
+                };
+                reader.readAsText(file);
+              }),
+            }),
+          ]),
           h('div.form-split', [
             h('div.form-group.form-half', [
               h('label.form-label', { attrs: { for: 'chapter-variant' } }, i18n.site.variant),

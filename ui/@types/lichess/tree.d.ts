@@ -1,4 +1,5 @@
 // file://./../../analyse/src/ctrl.ts
+/// <reference path="./index.d.ts" />
 
 declare namespace Tree {
   export type Path = string;
@@ -66,6 +67,7 @@ declare namespace Tree {
     fail?: boolean;
     puzzle?: 'win' | 'fail' | 'good' | 'retry';
     crazy?: NodeCrazy;
+    hidden?: boolean;
   }
   export interface NodeFromServer extends NodeBase {
     children?: Node[];
@@ -84,11 +86,11 @@ declare namespace Tree {
   export interface Comment {
     id: string;
     by:
-      | string
-      | {
-          id: string;
-          name: string;
-        };
+    | string
+    | {
+      id: string;
+      name: string;
+    };
     text: string;
   }
 
@@ -108,5 +110,5 @@ declare namespace Tree {
 
   export type Clock = number;
 
-  export interface Shape {}
+  export interface Shape { }
 }
